@@ -1,0 +1,36 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisMode>All</AnalysisMode>
+
+    <!-- NuGet package metadata -->
+    <PackageId>Navz.PluginEngine.Host</PackageId>
+    <Title>Navz Plugin Engine Host</Title>
+    <Description>Minimal runtime host implementation for discovering and loading plugins with assembly isolation.</Description>
+    <PackageTags>plugin;host;dotnet;extensibility</PackageTags>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <Deterministic>true</Deterministic>
+    <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>$(Version)</Version>
+    <RepositoryUrl>https://github.com/rmnavz/Navz.PluginEngine.Core</RepositoryUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/rmnavz/Navz.PluginEngine.Core</PackageProjectUrl>
+    <PackageReadmeFile>README.Host.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="README.Host.md" Pack="true" PackagePath="" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Navz.PluginEngine.Abstractions\Navz.PluginEngine.Abstractions.csproj" />
+  </ItemGroup>
+
+</Project>

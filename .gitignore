@@ -1,0 +1,19 @@
+bin/
+obj/
+*.user
+*.suo
+*.vs/
+.vscode/
+TestResults/
+*.ncrunch*
+*.DS_Store
+*.swp
+*.bak
+*.log
+*.tmp
+*.db
+*.sqlite
+*.sln.docstates
+
+# Example build outputs
+examples/ExampleHostApp/Plugins/

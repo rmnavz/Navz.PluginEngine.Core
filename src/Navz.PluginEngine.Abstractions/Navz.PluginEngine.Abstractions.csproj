@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <!-- NuGet package metadata -->
+    <PackageId>Navz.PluginEngine.Abstractions</PackageId>
+    <Title>Navz Plugin Engine Abstractions</Title>
+    <Description>Contains core interfaces and contracts for the Navz .NET Plugin Engine.</Description>
+    <PackageTags>plugin;abstractions;dotnet;extensibility</PackageTags>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>$(Version)</Version>
+    <RepositoryUrl>https://github.com/rmnavz/Navz.PluginEngine.Core</RepositoryUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/rmnavz/Navz.PluginEngine.Core</PackageProjectUrl>
+    <PackageReadmeFile>README.Abstractions.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="README.Abstractions.md" Pack="true" PackagePath="" />
+  </ItemGroup>
+
+</Project>

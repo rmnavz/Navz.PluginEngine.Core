@@ -1,0 +1,122 @@
+
+name: Continuous Deployment
+on:
+  workflow_dispatch:
+    inputs:
+      skip_tests:
+        description: 'Skip tests (use with caution)'
+        required: false
+        default: false
+        type: boolean
+      force_release:
+        description: 'Force release even if conditions are not met'
+        required: false
+        default: false
+        type: boolean
+  workflow_call:
+    inputs:
+      skip_tests:
+        description: 'Skip tests (use with caution)'
+        required: false
+        default: false
+        type: boolean
+      force_release:
+        description: 'Force release even if conditions are not met'
+        required: false
+        default: false
+        type: boolean
+  push:
+    branches:
+      - main           # Production
+      - develop        # Development/preview
+      - 'release/*'    # Release candidates and releases
+      - 'rc/*'         # Explicit RC branches if used
+      - 'hotfix/*'     # Hotfixes
+      - 'patch/*'      # Patches if you use this pattern
+    tags:
+      - 'v*'           # Versioned releases (e.g., v1.2.3)
+      - 'v*-rc*'       # Release candidate tags (e.g., v1.2.3-rc1)
+      - 'v*-develop*'  # Develop/pre-release tags (e.g., v1.2.3-develop)
+
+permissions:
+  contents: write      # Required for creating tags and releases
+  packages: write      # Required for pushing packages
+  actions: read        # Required for security-audit and CodeQL upload
+  security-events: write # Required for security-audit and CodeQL upload
+  checks: write        # Required for test results publishing
+  id-token: write      # Required for package publishing to registries
+  pages: write         # Required for publishing to GitHub Pages
+
+concurrency:
+  group: cd-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Configuration job - loads global settings
+  config:
+    name: Load Configuration
+    uses: ./.github/workflows/config-values.yml
+
+  # Continuous Integration - build, test, lint, audit
+  ci:
+    name: Continuous Integration
+    needs: [config]
+    uses: ./.github/workflows/ci.yml
+    with:
+      skip_tests: ${{ inputs.skip_tests || false }}
+
+
+  # Version calculation
+  version:
+    name: Calculate Version
+    needs: [ci]
+    uses: rmnavz/github-actions/.github/workflows/version-semver-generic-ci.yml@develop
+    with:
+      gitversion_version: '5.x'
+      gitversion_config: 'GitVersion.yml'
+
+  # Git tagging
+  tag:
+    name: Create Git Tag
+    needs: [version]
+    if: ${{ needs.version.outputs.semver != '' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/heads/release/') || startsWith(github.ref, 'refs/tags/v')) }}
+    uses: rmnavz/github-actions/.github/workflows/tag-git-generic-release.yml@develop
+    with:
+      version: ${{ needs.version.outputs.semver }}
+
+  # Build and Package NuGet Artifacts
+  nuget-pack:
+    name: Package NuGet
+    needs: [config, version, ci]
+    if: ${{ needs.config.outputs.run_pack == 'true' && needs.version.outputs.semver != '' }}
+    uses: rmnavz/github-actions/.github/workflows/build-package-dotnet-ci.yml@develop
+    with:
+      dotnet_version: ${{ needs.config.outputs.dotnet_version }}
+      project_path: 'Navz.PluginEngine.Core.sln'
+      release_version: ${{ needs.version.outputs.semver }}
+      artifact_name: 'nuget-packages'
+      artifact_retention_days: 30
+
+  # Publish Documentation to GitHub Pages
+  publish_docs:
+    name: Publish Documentation
+    needs: [config, ci]
+    if: ${{ needs.config.outputs.run_docs == 'true' }}
+    uses: rmnavz/github-actions/.github/workflows/publish-docs-generic-pages.yml@develop
+    with:
+      docfx_project_path: '.'
+      dotnet_version: ${{ needs.config.outputs.dotnet_version }}
+      docfx_version: '2.78.3'
+
+  # Publish GitHub Release with Artifacts and Test Results
+  release-publish:
+    name: Release & Publish
+    needs: [config, nuget-pack, version, ci]
+    uses: rmnavz/github-actions/.github/workflows/publish-release-generic-release.yml@develop
+    if: ${{ needs.config.outputs.run_release && needs.config.outputs.run_pack && needs.version.outputs.semver != '' }}
+    with:
+      release_version: ${{ needs.version.outputs.semver }}
+      artifact_names: 'nuget-packages,test-results'
+      artifact_patterns: 'Navz.PluginEngine.Abstractions*.nupkg, Navz.PluginEngine.Host*.nupkg'
+      include_test_results: ${{ needs.config.outputs.include_test_results_in_release == 'true' }}
+    secrets: inherit

@@ -1,0 +1,87 @@
+
+name: Continuous Integration
+permissions:
+  contents: read       # Required for checkout
+  actions: read        # Required for security-audit and CodeQL upload
+  security-events: write # Required for security-audit and CodeQL upload
+  checks: write        # Required for test results publishing
+on:
+  workflow_call:
+    inputs:
+      skip_tests:
+        description: 'Skip test execution'
+        required: false
+        default: false
+        type: boolean
+  push:
+    branches:
+      - main
+      - develop
+      - 'release/*'
+      - 'hotfix/*'
+    paths-ignore:
+      - '**.md'
+      - '.gitignore'
+      - '.editorconfig'
+      - 'docs/**'
+  pull_request:
+    branches:
+      - main
+      - develop
+      - 'release/*'
+      - 'hotfix/*'
+    paths-ignore:
+      - '**.md'
+      - '.gitignore'
+      - '.editorconfig'
+      - 'docs/**'
+  workflow_dispatch:
+    inputs:
+      run_security_audit:
+        description: 'Run Security Audit'
+        required: false
+        default: 'true'
+      run_build_and_test:
+        description: 'Run Build and Test'
+        required: false
+        default: 'true'
+
+jobs:
+  # Get shared configuration values
+  config:
+    uses: ./.github/workflows/config-values.yml
+
+  security-check:
+    name: Security Check
+    needs: [config]
+    uses: rmnavz/github-actions/.github/workflows/dotnet-security-check.yml@develop
+    with:
+      dotnet_version: ${{ needs.config.outputs.dotnet_version }}
+      run_vulnerability_check: true
+      run_codeql: true  # CodeQL enabled for advanced static analysis
+
+  build:
+    needs: [config]
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.run_build_and_test == 'true' }}
+    uses: rmnavz/github-actions/.github/workflows/build-solution-dotnet-ci.yml@develop
+    with:
+      dotnet_version: ${{ needs.config.outputs.dotnet_version }}
+      project_path: 'Navz.PluginEngine.Core.sln'
+      artifact_name: 'build-outputs'
+      artifact_paths: |
+        src/**/bin/Release/
+        examples/**/bin/Release/
+        tests/**/bin/Release/
+      artifact_retention_days: 1
+
+  test:
+    needs: [config, build]
+    if: ${{ !inputs.skip_tests && (github.event_name != 'workflow_dispatch' || inputs.run_build_and_test == 'true') }}
+    uses: rmnavz/github-actions/.github/workflows/test-solution-dotnet-unit-tests.yml@develop
+    with:
+      dotnet_version: ${{ needs.config.outputs.dotnet_version }}
+      project_path: 'Navz.PluginEngine.Core.sln'
+      use_build_artifact: true
+      build_artifact_name: 'build-outputs'
+      test_results_artifact_name: 'test-results'
+      test_results_retention_days: 30

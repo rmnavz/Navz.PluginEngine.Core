@@ -1,0 +1,74 @@
+name: Config Values
+on:
+  workflow_call:
+    outputs:
+      dotnet_version:
+        description: ".NET SDK version used in all jobs"
+        value: ${{ jobs.config.outputs.dotnet_version }}
+      node_version:
+        description: "Node.js version used for documentation build/deploy"
+        value: ${{ jobs.config.outputs.node_version }}
+      run_tests:
+        description: "Enable/disable test job"
+        value: ${{ jobs.config.outputs.run_tests }}
+      run_security_audit:
+        description: "Enable/disable security audit job"
+        value: ${{ jobs.config.outputs.run_security_audit }}
+      run_pack:
+        description: "Enable/disable NuGet pack job"
+        value: ${{ jobs.config.outputs.run_pack }}
+      run_docs:
+        description: "Enable/disable documentation build/deploy job"
+        value: ${{ jobs.config.outputs.run_docs }}
+      run_release:
+        description: "Enable/disable release publish job"
+        value: ${{ jobs.config.outputs.run_release }}
+      include_test_results_in_release:
+        description: "Include test results summary in release notes"
+        value: ${{ jobs.config.outputs.include_test_results_in_release }}
+jobs:
+  config:
+    name: Load Configuration
+    runs-on: ubuntu-latest
+    outputs:
+      dotnet_version: ${{ steps.set.outputs.dotnet_version }}
+      node_version: ${{ steps.set.outputs.node_version }}
+      run_tests: ${{ steps.set.outputs.run_tests }}
+      run_security_audit: ${{ steps.set.outputs.run_security_audit }}
+      run_pack: ${{ steps.set.outputs.run_pack }}
+      run_docs: ${{ steps.set.outputs.run_docs }}
+      run_release: ${{ steps.set.outputs.run_release }}
+      include_test_results_in_release: ${{ steps.set.outputs.include_test_results_in_release }}
+    steps:
+      - name: Set Configuration Values
+        id: set
+        run: |
+          # Configuration for all workflows - update these values to change behavior globally
+
+          # .NET SDK version used across all jobs
+          echo "dotnet_version=8.0.x" >> $GITHUB_OUTPUT
+
+          # Node.js version for documentation builds
+          echo "node_version=20" >> $GITHUB_OUTPUT
+
+          # Feature flags - set to 'false' to disable specific jobs
+          echo "run_tests=true" >> $GITHUB_OUTPUT
+          echo "run_security_audit=true" >> $GITHUB_OUTPUT
+          echo "run_pack=true" >> $GITHUB_OUTPUT
+          echo "run_docs=true" >> $GITHUB_OUTPUT
+          echo "run_release=true" >> $GITHUB_OUTPUT
+
+          # Release configuration
+          echo "include_test_results_in_release=true" >> $GITHUB_OUTPUT
+
+      - name: Display Configuration
+        run: |
+          echo "🔧 Configuration Summary:"
+          echo "  .NET Version: ${{ steps.set.outputs.dotnet_version }}"
+          echo "  Node Version: ${{ steps.set.outputs.node_version }}"
+          echo "  Run Tests: ${{ steps.set.outputs.run_tests }}"
+          echo "  Run Security Audit: ${{ steps.set.outputs.run_security_audit }}"
+          echo "  Run Pack: ${{ steps.set.outputs.run_pack }}"
+          echo "  Run Docs: ${{ steps.set.outputs.run_docs }}"
+          echo "  Run Release: ${{ steps.set.outputs.run_release }}"
+          echo "  Include Test Results in Release: ${{ steps.set.outputs.include_test_results_in_release }}"

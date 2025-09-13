@@ -1,0 +1,26 @@
+{
+  "metadata": [
+    {
+      "src": [
+        { "files": ["src/Navz.PluginEngine.Abstractions/Navz.PluginEngine.Abstractions.csproj"] },
+        { "files": ["src/Navz.PluginEngine.Host/Navz.PluginEngine.Host.csproj"] }
+      ],
+      "dest": "api"
+    }
+  ],
+  "build": {
+    "content": [
+  { "files": ["toc.yml", "**/*.md", "**/*.yml"], "src": "docs" },
+      { "files": ["README.Abstractions.md"], "src": "src/Navz.PluginEngine.Abstractions" },
+      { "files": ["README.Host.md"], "src": "src/Navz.PluginEngine.Host" },
+      { "files": ["api/**.yml"], "src": "api" }
+    ],
+    "dest": "_site",
+    "basePath": "/",
+    "globalMetadata": {
+      "_appTitle": "Navz.PluginEngine Documentation"
+    },
+    "template": ["default", "modern"],
+    "styles": ["docs/styles/custom.css"]
+  }
+}

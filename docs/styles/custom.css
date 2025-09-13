@@ -1,0 +1,58 @@
+/* Modern, minimal DocFX custom styles for Navz.PluginEngine */
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: #f6f8fa;
+  color: #232946;
+}
+
+.navbar, .sidefilter {
+  background: #232946 !important;
+  color: #fff;
+  border-radius: 0 0 12px 12px;
+  box-shadow: 0 2px 8px rgba(35,41,70,0.08);
+}
+
+#main {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(35,41,70,0.10);
+  padding: 2.5rem 2rem;
+  margin: 2rem auto;
+  max-width: 900px;
+}
+
+a {
+  color: #0078d4;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+a:hover {
+  color: #005a9e;
+  text-decoration: underline;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Segoe UI Semibold', 'Segoe UI', Arial, sans-serif;
+  color: #232946;
+  margin-top: 2rem;
+}
+
+.toc .nav > li > a {
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  color: #232946;
+  font-weight: 500;
+}
+.toc .nav > li > a.active, .toc .nav > li > a:focus {
+  background: #eebbc3;
+  color: #232946;
+}
+
+footer {
+  background: #232946;
+  color: #fff;
+  border-radius: 12px 12px 0 0;
+  padding: 1rem 0;
+  text-align: center;
+  margin-top: 2rem;
+}
