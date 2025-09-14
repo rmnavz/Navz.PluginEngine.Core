@@ -117,6 +117,6 @@ jobs:
     with:
       release_version: ${{ needs.version.outputs.semver }}
       artifact_names: 'nuget-packages,test-results'
-      artifact_patterns: 'Navz.PluginEngine.Abstractions*.nupkg,Navz.PluginEngine.Host*.nupkg'
+      artifact_patterns: 'Navz.PluginEngine.Abstractions*.nupkg, Navz.PluginEngine.Host*.nupkg'
       include_test_results: ${{ needs.config.outputs.include_test_results_in_release == 'true' }}
     secrets: inherit
